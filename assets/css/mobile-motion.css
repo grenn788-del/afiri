@@ -1,0 +1,226 @@
+/*
+==========================================================================
+ MOBILE-MOTION.CSS : animations tactiles et disposition mobile
+ --------------------------------------------------------------------------
+ Sur mobile, le site était en mode « minimal » (animations coupées) et tous
+ les effets « hover » étaient réservés à la souris. Ce fichier ajoute :
+   1. la disposition propre des formes en bas à droite de l'accueil
+   2. les animations des boutons (appui, reflet, flèche, onde au toucher)
+   3. le retour visuel au toucher sur les cartes
+   4. l'animation de la section Impact (cartes qui s'animent au défilement)
+ Tout est coupé automatiquement si l'appareil demande « réduire les animations ».
+ Chargé après les autres feuilles de style (voir index.html / fr.html).
+ Le JS associé : assets/js/mobile-motion.js
+==========================================================================
+*/
+
+/* ===== 1. ACCUEIL : icône animée centrée en bas, plus grande, textes juste en dessous ===== */
+@media (max-width:767px){
+  :root{--wave-h:43.75vw;--ico:clamp(156px,48vw,196px);--h3d-txt-room:92px}
+  .hero__waves{inset:auto 0 0 0;width:100%}
+  .hero-waves{width:100%}
+  /* de la place sous le texte pour que l'icône et ses textes ne touchent jamais les boutons */
+  .hero .hero__inner{padding-bottom:calc(var(--wave-h) + var(--ico) + var(--h3d-txt-room) + 6px)}
+  /* icône : centrée horizontalement, posée au-dessus des textes */
+  html .h3d,html .h3d.h3d--flat{--h3d-size:var(--ico)}
+  .h3d .h3d__fig{left:0;right:0;margin-inline:auto;top:auto;bottom:calc(var(--wave-h) * .62 + var(--h3d-txt-h,64px) + 14px);width:var(--ico);opacity:1;filter:drop-shadow(0 6px 14px rgba(3,15,30,.45))}
+  /* textes de l'animation : juste sous l'icône, centrés (ils étaient masqués sur mobile) */
+  .h3d.h3d--flat .h3d__txt{display:flex;left:var(--gutter);right:var(--gutter);bottom:calc(var(--wave-h) * .62);max-width:none;margin-inline:auto;align-items:center;text-align:center;gap:4px}
+  .h3d .h3d__num{font-size:9px;justify-content:center}
+  .h3d .h3d__num i{width:22px}
+  .h3d .h3d__kick{font-size:9px}
+  .h3d .h3d__title{font-size:clamp(14px,4.3vw,17px)}
+  .h3d .h3d__sub{display:none}
+  .h3d.h3d--flat.is-in .h3d__txt>*{opacity:1;transform:none}
+}
+@media (max-width:767px) and (prefers-reduced-motion:no-preference){
+  .h3d .h3d__fig{animation:mFloat 5.5s ease-in-out infinite}
+  @keyframes mFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+}
+
+/* ===== 2. BOUTONS ===== */
+@media (max-width:767px){
+  .button{position:relative;overflow:hidden;isolation:isolate;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+  .button .arrow{display:inline-block;transition:transform .3s var(--ease,ease)}
+
+  /* appui : le bouton s'enfonce et prend la couleur du survol */
+  .button:active{transform:scale(.96);box-shadow:0 4px 14px rgba(16,42,70,.22)}
+  .button--primary:active,.button--blue:active{background:var(--sky);box-shadow:0 6px 18px rgba(123,200,248,.5)}
+  .button--ghost:active{background:var(--gold);border-color:var(--gold);color:#3a2207;box-shadow:0 6px 18px rgba(245,201,111,.5)}
+  .button--gold:active{background:#fff;color:var(--brown)}
+  .button:active .arrow{transform:translateX(5px)}
+
+  /* petits boutons ronds (menu, langue, réseaux sociaux) */
+  .menu-toggle,.icon-button,.lang-btn,.ceo-socials a,.footer-socials a,.contact-socials__row a{-webkit-tap-highlight-color:transparent;transition-property:transform,background-color,color,border-color,box-shadow;transition-duration:.25s}
+  .menu-toggle:active,.icon-button:active,.lang-btn:active,.ceo-socials a:active,.footer-socials a:active,.contact-socials__row a:active{transform:scale(.9)}
+
+  /* onde au toucher (créée par mobile-motion.js) */
+  .m-ripple{position:absolute;z-index:-1;border-radius:50%;pointer-events:none;background:rgba(255,255,255,.55);transform:scale(0);opacity:.7;animation:mRipple .65s ease-out forwards}
+  .button--ghost .m-ripple{background:rgba(255,255,255,.4)}
+  @keyframes mRipple{to{transform:scale(1);opacity:0}}
+}
+@media (max-width:767px) and (prefers-reduced-motion:no-preference){
+  /* reflet lumineux qui traverse les boutons pleins, de temps en temps */
+  .button--primary::after,.button--blue::after,.button--gold::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(105deg,transparent 34%,rgba(255,255,255,.6) 50%,transparent 66%);transform:translateX(-130%);animation:mShine 4.8s ease-in-out 1.6s infinite}
+  .button:disabled::after{animation:none}
+  @keyframes mShine{0%,55%{transform:translateX(-130%)}85%,100%{transform:translateX(130%)}}
+
+  /* flèche qui invite à cliquer */
+  .button--primary .arrow,.button--blue .arrow{animation:mArrow 2.4s ease-in-out infinite}
+  .button--primary:active .arrow,.button--blue:active .arrow{animation:none}
+  @keyframes mArrow{0%,55%,100%{transform:translateX(0)}28%{transform:translateX(5px)}}
+
+  /* bouton secondaire : plus de halo pulsant (voir « rectangle transparent » plus bas) */
+}
+
+/* ===== 3. CARTES : retour visuel au toucher ===== */
+@media (max-width:767px){
+  .urgent-card,.award-document,.news-card,.value-card,.gallery-item,.logo-card,.leader__panel{-webkit-tap-highlight-color:transparent}
+  .urgent-card:active,.award-document:active,.news-card:active,.value-card:active,.logo-card:active{translate:0 -3px;box-shadow:var(--shadow)}
+  .gallery-item img,.urgent-card__media img{transition:transform .6s var(--ease,ease)}
+  .gallery-item:active img,.urgent-card:active .urgent-card__media img{transform:scale(1.07)}
+  .logo-card:active img{filter:none;opacity:1}
+}
+
+/* ===== 4. IMPACT : les cartes s'animent au défilement, comme au survol sur ordinateur ===== */
+@media (max-width:767px){
+  .impact-card{-webkit-tap-highlight-color:transparent}
+  /* la carte appuyée ou « active » (au centre de l'écran) reprend l'effet de survol */
+  .impact-card:active,.impact-card.m-live{box-shadow:0 22px 44px rgba(16,42,70,.38)}
+  .impact-card:active .impact-card__img,.impact-card.m-live .impact-card__img{transform:scale(1.08);filter:saturate(1.15)}
+  .impact-card:active .impact-card__shade::after,.impact-card.m-live .impact-card__shade::after{transform:none}
+  .impact-card:active::before,.impact-card.m-live::before{transform:none}
+  .impact-card:active::after{opacity:1}
+  .impact-card.m-live::after{opacity:.55}
+  .impact-card:active .impact-card__icon,.impact-card.m-live .impact-card__icon{transform:scale(1.12) rotate(-6deg);background:rgba(245,201,111,.28)}
+  .impact-card:active .impact-card__open,.impact-card.m-live .impact-card__open{transform:rotate(90deg) scale(1.1);background:var(--gold);border-color:var(--gold);color:#3a2207}
+  .impact-card:active{translate:0 -4px}
+  .impact-card__shade::after{transition:transform .7s var(--ease,ease)}
+}
+@media (max-width:767px) and (prefers-reduced-motion:no-preference){
+  /* entrée des cartes : glissement + fondu, l'une après l'autre (classes ajoutées par le JS) */
+  .impact-card.m-pre{opacity:0;transform:translate3d(0,28px,0) scale(.96);transition:opacity .7s ease,transform .85s var(--ease,ease),box-shadow .5s ease,translate .5s var(--ease,ease)}
+  .impact-card.m-pre.m-in{opacity:1;transform:none}
+
+  /* petites icônes animées (coupées sur mobile par le mode « minimal », on les remet) */
+  .impact-card__icon::after{animation:ring 3.2s ease-out infinite}
+  .impact-card__icon[data-icon=education] svg{animation:icoFlipY 5s ease-in-out infinite}
+  .impact-card__icon[data-icon=rights] svg{transform-origin:50% 25%;animation:icoSway 3.4s ease-in-out infinite}
+  .impact-card__icon[data-icon=women] svg{animation:icoRise 3s ease-in-out infinite}
+  .impact-card__icon[data-icon=leadership] svg path:last-child{transform-box:fill-box;transform-origin:center;animation:icoNeedle 4s ease-in-out infinite}
+  .impact-card__icon[data-icon=humanitarian] svg{animation:icoBeat 2.2s ease-in-out infinite}
+  .impact-card__icon[data-icon=community] svg{animation:icoSpinSlow 16s linear infinite}
+
+  /* fond de la section : motif et lueurs qui bougent doucement */
+  .impact-section::before{animation:imTex 46s linear infinite}
+  .impact-section::after{animation:imBlob 16s ease-in-out infinite alternate}
+}
+
+/* ===== 5. ACCUEIL : bouton du bas = rectangle transparent (contour fin, fond vitré) ===== */
+@media (max-width:767px){
+  .hero__actions .button--ghost{
+    background:rgba(255,255,255,.06);
+    border:1.5px solid rgba(255,255,255,.7);
+    border-radius:6px;
+    color:#fff;
+    box-shadow:none;
+    animation:none;
+    -webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)
+  }
+  .hero__actions .button--ghost{transition:background-color .3s ease,border-color .3s ease,color .3s ease,box-shadow .3s ease,transform .2s ease}
+  /* au toucher (= « survol » sur mobile) : même animation jaune que sur ordinateur */
+  .hero__actions .button--ghost:active,.hero__actions .button--ghost:hover,.hero__actions .button--ghost:focus-visible{background:var(--gold);border-color:var(--gold);color:#3a2207;box-shadow:0 8px 22px rgba(245,201,111,.55)}
+  .hero__actions .button--ghost:active .m-ripple{background:rgba(255,255,255,.7)}
+}
+@media (max-width:767px) and (prefers-reduced-motion:no-preference){
+  /* petit reflet jaune qui traverse le bouton de temps en temps pour inviter à toucher */
+  .hero__actions .button--ghost::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(105deg,transparent 34%,rgba(245,201,111,.55) 50%,transparent 66%);transform:translateX(-130%);animation:mShine 4.8s ease-in-out 2.4s infinite}
+}
+
+/* ===== 6. AWARDS (anneaux) : sur mobile, seulement la simple rotation ===== */
+@media (max-width:767px){
+  /* plus d'arrivée en gerbe, ni de rotation liée au défilement, ni de scintillement */
+  .prestige-section .pr-stage .prx-it,
+  .prestige-section .pr-stage .pr-chip__in{animation:none!important;opacity:1!important;transform:none}
+  .prestige-section .prx-tw,.prestige-section .prx-tw.tw{animation:none!important}
+  .prestige-section .prx-sc{transform:none!important}
+  /* comètes, lueur qui respire, impulsions, reflet, étoile qui scintille, ruban, formes flottantes, étincelles : coupés */
+  .prestige-section .pr-r--lead,.prestige-section .pr-r--lead2{display:none}
+  .prestige-section .pr-glow{animation:none!important;filter:none!important}
+  .prestige-section .pr-core__pulse{display:none}
+  .prestige-section .pr-core__shine::after,.prestige-section .pr-core__star,.prestige-section .pr-badge__shape{animation:none!important}
+  .prestige-section .pr-ribbon{animation:none!important}
+  .prestige-section .pr-sh svg{animation:none!important}
+  .prestige-section .aw-spark,.prestige-section .awards-fx__beam{display:none}
+  .prestige-section .awards-fx__tex{animation:none!important}
+  .prestige-section .pr-tilt{transition:none;transform:none}
+  .prestige-section .aw-blob{animation:none!important}
+}
+
+/* ===== 7. IMPACT : fenêtre de détail plus stable sur mobile ===== */
+@media (max-width:767px){
+  /* le fond ne défile plus derrière la fenêtre (iOS compris) */
+  html:has(body.modal-is-open){overflow:hidden;overscroll-behavior:none}
+  .impact-modal{height:100vh;height:100dvh;overscroll-behavior:contain;-webkit-backdrop-filter:none;backdrop-filter:none;background:#0b1b2e;touch-action:pan-y}
+  /* panneau plein écran : il monte du bas comme sur ordinateur (sans zoom qui laisse voir le fond sur les bords) */
+  .impact-modal__panel{height:100%;grid-template-rows:minmax(150px,32dvh) minmax(0,1fr);box-shadow:none;transform:translate3d(0,100%,0);transition:transform .6s var(--ease,cubic-bezier(.22,.9,.3,1))}
+  .impact-modal.is-open .impact-modal__panel{transform:none}
+  /* l'image se dévoile (cadre qui s'ouvre) et se pose en zoom arrière, comme sur ordinateur */
+  .impact-modal__media{clip-path:inset(0 18% 0 18% round 24px);transition:clip-path .9s var(--ease,cubic-bezier(.22,.9,.3,1)) .12s}
+  .impact-modal.is-open .impact-modal__media{clip-path:inset(0 round 0)}
+  .impact-modal__media img{transform:scale(1.25);transition:transform 1.3s var(--ease,cubic-bezier(.22,.9,.3,1)) .1s}
+  .impact-modal.is-open .impact-modal__media img{transform:none}
+  .impact-modal__body{overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:20px 18px 0;gap:12px}
+  /* la navigation reste visible en bas, même quand le texte est long */
+  .impact-modal__nav{position:sticky;bottom:0;z-index:2;margin-top:auto;padding:12px 0 calc(12px + env(safe-area-inset-bottom,0px));background:#fff}
+  .impact-modal__close{top:calc(12px + env(safe-area-inset-top,0px));width:44px;height:44px}
+  .impact-modal__nav button{width:44px;height:44px}
+  /* la carte touchée ne reste pas « enfoncée » ou en surbrillance après la fermeture */
+  .impact-card:focus{outline:none}
+  .impact-card:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+}
+
+/* ===== 8. LEADERSHIP : boutons, liens, réseaux, photos (mêmes animations que sur ordinateur) ===== */
+@media (max-width:767px){
+  .leader__link,.leader__socials a,.leader__toggle,.leader__titles li,.leader__photo,.leader__logo{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+  .leader__link{transition:background-color .3s ease,color .3s ease,border-color .3s ease,box-shadow .3s ease,transform .35s var(--ease,ease)}
+  /* au toucher (= « survol » sur mobile) : couleur d'accent, soulèvement, icône qui bouge */
+  .leader__link:active,.leader__link.m-tap{background:var(--lp-accent);border-color:var(--lp-accent);color:var(--lp1);box-shadow:0 10px 22px rgba(0,0,0,.25);transform:translateY(-3px)}
+  .leader__link:active .link-icon,.leader__link.m-tap .link-icon{animation:none;transform:translate(3px,-3px)}
+  .leader__link[data-icon=email]:active .link-icon,.leader__link[data-icon=email].m-tap .link-icon{transform:translateY(-3px) scale(1.15)}
+  .leader__link[data-icon=whatsapp]:active .link-icon,.leader__link[data-icon=whatsapp].m-tap .link-icon{animation:wiggle .6s ease}
+  .leader__socials a:active,.leader__socials a.m-tap{background:var(--lp-accent);border-color:var(--lp-accent);color:var(--lp1);transform:translateY(-4px) rotate(-8deg) scale(1.08)}
+  .leader__toggle:active b,.leader__toggle.m-tap b{background:var(--lp-accent);color:var(--lp1)}
+  .leader__titles li:active,.leader__titles li.m-tap{background:var(--lp-sub);color:var(--lp1)}
+  .leader__photo:active,.leader__photo.m-tap{transform:translateY(-8px) rotate(-1.2deg);box-shadow:0 26px 54px var(--lp-glow)}
+  .leader__photo--second:active,.leader__photo--second.m-tap{transform:translateY(-8px) rotate(1.5deg) scale(1.04)}
+  .leader__photo:active img,.leader__photo.m-tap img{transform:scale(1.12)}
+  .leader__logo:active,.leader__logo.m-tap{transform:scale(1.1) rotate(-6deg);box-shadow:0 16px 32px rgba(10,30,50,.36)}
+}
+@media (max-width:767px) and (prefers-reduced-motion:no-preference){
+  /* animations continues : icônes des liens qui flottent, anneaux qui pulsent autour des réseaux */
+  .leader__link .link-icon{animation:floatIco 3.2s ease-in-out infinite}
+  .leader__socials a::after{animation:ring 3s ease-out infinite}
+  .leader__socials a:nth-child(2)::after{animation-delay:.5s}
+  .leader__socials a:nth-child(3)::after{animation-delay:1s}
+}
+
+/* ===== 9. NOTRE APPROCHE STRATÉGIQUE : pastilles 01-04 animées, comme sur ordinateur ===== */
+@media (max-width:767px){
+  .process-step__node{-webkit-tap-highlight-color:transparent;transition:background-color .3s ease,color .3s ease,transform .4s var(--ease,ease)}
+  .process-step:active .process-step__node,.process-step.m-tap .process-step__node{background:var(--blue);color:#fff;transform:scale(1.1)}
+}
+@media (max-width:767px) and (prefers-reduced-motion:no-preference){
+  /* icônes qui bougent en boucle */
+  .ps-ico--1{animation:scan 3.4s ease-in-out infinite}
+  .ps-ico--2{transform-origin:20% 90%;animation:wave 2.6s ease-in-out infinite}
+  .ps-ico--3{animation:pulseIco 2.4s ease-in-out infinite}
+  .ps-ico--4 .ps-check{animation:drawLoop 3.4s ease-in-out infinite}
+  /* arrivée des étapes l'une après l'autre : pastille qui tourne, texte qui monte */
+  .process-step:nth-of-type(1){--sd:0s}.process-step:nth-of-type(2){--sd:.45s}.process-step:nth-of-type(3){--sd:.9s}.process-step:nth-of-type(4){--sd:1.35s}
+  html.rr .process-step:not(.is-in) .process-step__node,html.rr .process-step:not(.is-in) .process-step__copy{opacity:0}
+  html.rr .process-step.is-in .process-step__node{animation:mNodeIn .9s cubic-bezier(.34,1.56,.64,1) var(--sd,0s) backwards}
+  html.rr .process-step.is-in .process-step__copy{animation:mCopyIn .7s ease calc(var(--sd,0s) + .3s) backwards}
+  @keyframes mNodeIn{from{opacity:0;transform:scale(.15) rotate(-120deg)}to{opacity:1;transform:none}}
+  @keyframes mCopyIn{from{opacity:0;transform:translate3d(0,16px,0)}to{opacity:1;transform:none}}
+}

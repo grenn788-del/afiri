@@ -1,0 +1,128 @@
+/*
+==========================================================================
+ FEATURED-NEWS.CSS : apparence du bandeau du haut + de la carte « Featured news »
+ (couleurs et symbole : voir featured-news.js, rien à modifier ici en général)
+ Ce fichier est chargé APRÈS les autres feuilles de style : il a le dernier mot.
+==========================================================================
+*/
+:root{
+  --ft-banner-bg:#7bc8f8;--ft-banner-text:#0d2a43;--ft-banner-symbol:#c2185b;
+  --ft-accent:#f48fb1;--ft-accent-rgb:244,143,177;
+  --ft-card-1:#8a4c19;--ft-card-2:#754013;--ft-card-3:#5f3210;
+  --ft-card-1-rgb:138,76,25;--ft-card-2-rgb:117,64,19;--ft-card-3-rgb:95,50,16;
+}
+
+/* ---------- 1. Bandeau du haut : couleurs, et ANCIENNES ANIMATIONS SUPPRIMÉES ---------- */
+.announce{background:var(--ft-banner-bg);color:var(--ft-banner-text)}
+.announce:hover{background:var(--ft-banner-bg);filter:brightness(.96)}
+.announce::after{display:none!important}                    /* ancien reflet qui balayait le bandeau */
+.announce__arrows,.announce__dot{display:none!important}    /* anciennes flèches et point pulsant */
+.announce__link{background:var(--ft-banner-text);color:var(--ft-banner-bg)}
+.announce:hover .announce__link{background:var(--ft-banner-text);filter:brightness(1.25)}
+.announce__link>span[aria-hidden]{animation:none!important}  /* ancienne pulsation de la flèche du bouton */
+
+/* ---------- 2. Symbole animé (bandeau + grand rond de la carte) ---------- */
+.ft-sym{display:inline-grid;place-items:center;flex:none;line-height:0}
+.ft-sym--banner{color:var(--ft-banner-symbol)}
+.ft-sym--banner .ft-svg{width:24px;height:24px;overflow:visible}
+.news-card__visual{color:var(--ft-accent)}
+.ft-svg{overflow:visible}
+.ft-g{transform-box:fill-box;transform-origin:center}
+@media (max-width:600px){.announce__inner .ft-sym--l{display:none}}
+
+html:not([data-motion=minimal]) .ft-svg .ft-g{animation-duration:3.2s;animation-timing-function:ease-in-out;animation-iteration-count:infinite}
+html[data-ft-symbol="ribbon"]:not([data-motion=minimal]) .ft-g{transform-origin:50% 15%;animation-name:ftSwing}
+html[data-ft-symbol="heart"]:not([data-motion=minimal]) .ft-g{animation-name:ftBeat;animation-duration:1.3s}
+html[data-ft-symbol="star"]:not([data-motion=minimal]) .ft-g{animation-name:ftTwinkle;animation-duration:3.6s}
+html[data-ft-symbol="megaphone"]:not([data-motion=minimal]) .ft-g{animation-name:ftWobble;animation-duration:1.8s}
+html[data-ft-symbol="globe"]:not([data-motion=minimal]) .ft-g{animation-name:ftFloat;animation-duration:4s}
+html[data-ft-symbol="flame"]:not([data-motion=minimal]) .ft-g{transform-origin:50% 100%;animation-name:ftFlicker;animation-duration:1.4s}
+html[data-ft-symbol="leaf"]:not([data-motion=minimal]) .ft-g{transform-origin:15% 90%;animation-name:ftSway;animation-duration:4s}
+html[data-ft-symbol="trophy"]:not([data-motion=minimal]) .ft-g{animation-name:ftBounce;animation-duration:2.2s}
+html[data-ft-symbol="custom"]:not([data-motion=minimal]) .ft-g{animation-name:ftFloat;animation-duration:4s}
+html:not([data-motion=minimal]) .ft-w{animation:ftWave 1.8s ease-in-out infinite}
+html:not([data-motion=minimal]) .ft-w2{animation-delay:.3s}
+html:not([data-motion=minimal]) .ft-mer{transform-box:fill-box;transform-origin:center;animation:ftTurn 4s ease-in-out infinite}
+
+@keyframes ftSwing{0%,100%{transform:rotate(-11deg)}50%{transform:rotate(11deg)}}
+@keyframes ftBeat{0%,100%{transform:scale(1)}18%{transform:scale(1.2)}34%{transform:scale(.97)}50%{transform:scale(1.12)}70%{transform:scale(1)}}
+@keyframes ftTwinkle{0%,100%{transform:rotate(0) scale(1)}50%{transform:rotate(72deg) scale(1.18)}}
+@keyframes ftWobble{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
+@keyframes ftFloat{0%,100%{transform:translateY(-8%)}50%{transform:translateY(8%)}}
+@keyframes ftFlicker{0%,100%{transform:scale(1,1) skewX(0)}25%{transform:scale(.94,1.08) skewX(-3deg)}55%{transform:scale(1.04,.95) skewX(3deg)}80%{transform:scale(.97,1.05) skewX(-2deg)}}
+@keyframes ftSway{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(9deg)}}
+@keyframes ftBounce{0%,100%{transform:translateY(0) scale(1)}40%{transform:translateY(-9%) scale(1.06)}60%{transform:translateY(0) scale(1)}}
+@keyframes ftWave{0%,100%{opacity:.2}45%{opacity:1}}
+@keyframes ftTurn{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.25)}}
+@media (prefers-reduced-motion:reduce){.ft-g,.ft-w,.ft-mer{animation:none!important}}
+
+/* ---------- 3. Carte « Featured news » : couleurs pilotées par featured-news.js ---------- */
+.news-card{background:linear-gradient(135deg,var(--ft-card-1) 0%,var(--ft-card-2) 55%,var(--ft-card-3) 100%);background-size:230% 230%}
+.news-card__bg::after{background:linear-gradient(135deg,rgba(var(--ft-card-1-rgb),var(--news-veil,.7)) 0%,rgba(var(--ft-card-2-rgb),var(--news-veil,.7)) 55%,rgba(var(--ft-card-3-rgb),calc(var(--news-veil,.7) + .12)) 100%)}
+.nf-orb--1{background:radial-gradient(circle,rgba(var(--ft-accent-rgb),.38),rgba(var(--ft-accent-rgb),0) 68%)}
+.nf-ray{background:conic-gradient(from 0deg,rgba(245,201,111,0) 0deg,rgba(245,201,111,.2) 40deg,rgba(245,201,111,0) 90deg,rgba(var(--ft-accent-rgb),.16) 190deg,rgba(var(--ft-accent-rgb),0) 250deg)}
+.nf-wave--2 path{stroke:var(--ft-accent)}
+.nf-dot--pink{background:rgba(var(--ft-accent-rgb),.75)}
+
+/* ---------- 4. Carte « Featured news » : rectangle en verre flou + ouverture 2D depuis le rond ---------- */
+.news-card{padding:clamp(16px,2.4vw,30px);gap:clamp(20px,3vw,44px);transition:transform .5s var(--ease),box-shadow .5s var(--ease),border-color .4s ease,min-height .9s var(--ease)}
+.news-card.is-expanded{min-height:clamp(600px,50vw,690px)}
+
+/* le rectangle bien visible (texte de la carte fermée) */
+.news-card__copy{position:relative;padding:clamp(24px,3vw,44px);border-radius:26px;
+  background:linear-gradient(160deg,rgba(var(--ft-card-1-rgb),.5) 0%,rgba(var(--ft-card-3-rgb),.38) 100%);
+  -webkit-backdrop-filter:blur(20px) saturate(1.25);backdrop-filter:blur(20px) saturate(1.25);
+  border:1px solid rgba(255,255,255,.26);box-shadow:0 18px 44px rgba(0,0,0,.28)}
+.news-card__copy,.news-card__visual{transition:opacity .45s ease .25s,visibility 0s linear 0s}
+.news-card.is-expanded .news-card__copy,.news-card.is-expanded .news-card__visual{opacity:0;visibility:hidden;transition:opacity .35s ease,visibility 0s linear .35s}
+
+/* bouton d'ouverture : même style que « Découvrir » des collaborations */
+.news-toggle{gap:12px;min-height:48px;padding:6px 8px 6px 22px;border:0;background:#fff;color:#3a2207;font-weight:700}
+.news-toggle:hover{background:#fff;color:#3a2207;box-shadow:0 10px 24px rgba(0,0,0,.3);gap:16px}
+.news-toggle__ico,.news-toggle[aria-expanded=true] .news-toggle__ico{position:relative;display:block;width:34px;height:34px;margin:0!important;border:0;border-radius:50%;background:var(--gold);transform:none!important;animation:none!important}
+.news-toggle__ico::after{content:"";position:absolute;left:50%;top:50%;width:8px;height:8px;border-right:2.2px solid #3a2207;border-bottom:2.2px solid #3a2207;transform:translate(-65%,-50%) rotate(-45deg)}
+
+/* le rectangle qui s'agrandit : s'ouvre en cercle depuis le rond, sur fond flou */
+.news-open{position:absolute;z-index:5;inset:12px;border-radius:26px;overflow:hidden;
+  background:linear-gradient(160deg,rgba(var(--ft-card-1-rgb),.64) 0%,rgba(var(--ft-card-3-rgb),.5) 100%);
+  -webkit-backdrop-filter:blur(26px) saturate(1.3);backdrop-filter:blur(26px) saturate(1.3);
+  border:1px solid rgba(255,255,255,.28);box-shadow:0 22px 56px rgba(0,0,0,.34);
+  clip-path:circle(0px at var(--ox,85%) var(--oy,50%));visibility:hidden;
+  transition:clip-path .95s var(--ease),visibility 0s linear .95s}
+.news-open.is-open{clip-path:circle(var(--or,2000px) at var(--ox,85%) var(--oy,50%));visibility:visible;transition:clip-path .95s var(--ease),visibility 0s}
+.news-open__in{height:100%;overflow:auto;overscroll-behavior:contain;padding:clamp(26px,3.4vw,52px);padding-right:clamp(26px,3.4vw,52px);scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.4) transparent}
+.news-open__title{max-width:26ch;margin-top:12px;font-size:clamp(26px,3vw,40px);font-weight:700;letter-spacing:-.03em;line-height:1.1;color:#fff}
+.news-open .news-card__intro{max-width:70ch}
+.news-open .news-points{max-width:none;margin-top:26px}
+.news-open .news-card__actions{margin-top:28px}
+@media (min-width:900px){
+  .news-open .news-points{grid-template-columns:repeat(3,minmax(0,1fr));gap:0 28px}
+  .news-open .news-point{grid-template-columns:1fr;gap:12px;padding-top:16px;transform:none!important}
+}
+
+/* apparition en cascade du contenu */
+.news-open.is-open .news-open__in>*{animation:ftUp .8s var(--ease) both}
+.news-open.is-open .news-open__in>*:nth-child(1){animation-delay:.45s}
+.news-open.is-open .news-open__in>*:nth-child(2){animation-delay:.52s}
+.news-open.is-open .news-open__in>*:nth-child(3){animation-delay:.59s}
+.news-open.is-open .news-open__in>*:nth-child(4){animation-delay:.66s}
+.news-open.is-open .news-open__in>*:nth-child(5){animation-delay:.76s}
+.news-open.is-open .news-open__in>*:nth-child(6){animation-delay:.86s}
+@keyframes ftUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+
+/* bouton fermer */
+.news-close{position:absolute;z-index:2;top:18px;right:18px;display:grid;place-items:center;width:48px;height:48px;padding:0;border-radius:50%;cursor:pointer;color:#fff;
+  background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  opacity:0;transform:rotate(-70deg) scale(.5);transition:opacity .3s ease,transform .5s var(--ease),background .25s ease,color .25s ease}
+.news-open.is-open .news-close{opacity:1;transform:none;transition:opacity .35s ease .6s,transform .6s var(--ease) .6s,background .25s ease,color .25s ease}
+.news-open.is-open .news-close:hover{background:#fff;color:var(--ft-card-2);transform:rotate(90deg);transition-delay:0s}
+.news-close:focus-visible,.news-toggle:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+
+@media (max-width:899px){
+  .news-card.is-expanded{min-height:800px}
+  .news-open__title{padding-right:56px}
+}
+@media (prefers-reduced-motion:reduce){
+  .news-card,.news-open,.news-card__copy,.news-card__visual,.news-close{transition-duration:.01ms!important;transition-delay:0s!important}
+  .news-open__in>*{animation:none!important}
+}

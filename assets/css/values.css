@@ -1,0 +1,126 @@
+/*
+==========================================================================
+ VALUES.CSS : page intérieure des valeurs (voir values.js)
+ Plan : 1. Rectangles cliquables · 2. Page + cercle · 3. Icône et texte
+        4. Navigation · 5. Mobile / accessibilité
+ Tout est en 2D : un seul cercle plein qui grandit (transform: scale), sans
+ perspective, sans rotation en profondeur. Le cercle et le texte sont sur fond flou (verre dépoli).
+==========================================================================
+*/
+
+/* ---------- 1. Rectangles cliquables ---------- */
+.value-card.is-clickable{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.value-card.is-clickable:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.value-card__more{position:relative;z-index:1;display:inline-flex;align-items:center;gap:8px;margin-top:auto;padding-top:18px;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold)}
+.value-card__more svg{transition:transform .4s var(--ease)}
+.value-card.is-clickable:hover .value-card__more svg,.value-card.is-clickable:focus-visible .value-card__more svg{transform:translateX(6px)}
+/* le petit cercle du rectangle grossit un peu quand la page s'ouvre : c'est de là que part le grand cercle */
+.value-card.vx-origin::after{transform:scale(1.6)}
+html.vx-lock,html.vx-lock body{overflow:hidden}
+
+/* ---------- 2. Page plein écran + cercle ---------- */
+.vx{--ox:50%;--oy:50%;--d:2400px;--vc:#2077bc;position:fixed;inset:0;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;color:#fff;visibility:hidden;pointer-events:none}
+.vx.is-open{visibility:visible;pointer-events:auto}
+.vx.is-closing{pointer-events:none}
+.vx__defs{position:absolute;width:0;height:0;overflow:hidden}
+
+/* le cercle : centré sur le petit cercle du rectangle, il grandit jusqu'à couvrir l'écran */
+.vx__disc{position:absolute;left:var(--ox);top:var(--oy);width:var(--d);height:var(--d);margin:calc(var(--d) / -2) 0 0 calc(var(--d) / -2);border-radius:50%;background:var(--vc);transform:scale(0);transition:transform .75s cubic-bezier(.65,0,.2,1)}
+.vx.is-in .vx__disc{transform:scale(1);transition:transform .75s cubic-bezier(.65,0,.2,1),background-color .5s ease}
+.vx.is-closing .vx__disc{transform:scale(0);transition:transform .65s cubic-bezier(.65,0,.35,1) .12s}
+
+/* le contenu apparaît une fois le cercle bien ouvert, et disparaît tout de suite à la fermeture */
+.vx__top,.vx__close,.vx__nav,.vx__dots,.vx__track{opacity:0;transition:opacity .2s ease,background-color .25s ease,border-color .25s ease,color .25s ease}
+.vx.is-in .vx__top,.vx.is-in .vx__close,.vx.is-in .vx__nav,.vx.is-in .vx__dots,.vx.is-in .vx__track{opacity:1;transition:opacity .45s ease .4s,background-color .25s ease,border-color .25s ease,color .25s ease}
+
+.vx__top{position:absolute;z-index:3;top:0;left:0;right:0;display:flex;align-items:center;gap:18px;padding:calc(22px + env(safe-area-inset-top,0px)) clamp(20px,4vw,56px) 0;pointer-events:none}
+.vx__eyebrow{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.2em;color:var(--gold)}
+.vx__count{font-size:12px;font-weight:600;letter-spacing:.16em;color:rgba(255,255,255,.75);font-variant-numeric:tabular-nums}
+.vx__close{position:absolute;z-index:5;top:calc(14px + env(safe-area-inset-top,0px));right:clamp(14px,3.4vw,48px);display:grid;place-items:center;width:52px;height:52px;border-radius:50%;border:1px solid rgba(255,255,255,.4);background:rgba(0,0,0,.18);color:#fff;cursor:pointer}
+.vx__close:hover{background:var(--gold);border-color:var(--gold);color:#3a2605}
+.vx button:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+
+/* ---------- 3. Diapositives, icône et texte ---------- */
+.vx__track{position:relative;z-index:2;width:100%;flex:1;min-height:0;max-width:1100px;margin-inline:auto}
+.vx__slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(8px,2.4vh,28px);padding:calc(70px + env(safe-area-inset-top,0px)) 24px 96px;text-align:center;opacity:0;pointer-events:none;transition:transform .6s var(--ease),opacity .45s ease}
+.vx__slide[data-o="-1"]{transform:translateX(-60%)}
+.vx__slide[data-o="1"]{transform:translateX(60%)}
+.vx__slide[data-o="0"]{opacity:1;pointer-events:auto;transform:none}
+
+.vx__stage{position:relative;flex:none;width:min(300px,64vw);height:min(300px,34vh);display:grid;place-items:center}
+.vx__glow{position:absolute;inset:-12%;border-radius:50%;background:radial-gradient(circle,rgba(255,226,150,.38) 0,rgba(255,210,110,.1) 45%,transparent 68%)}
+.vx__spin{position:absolute;inset:0;animation:vxFloat 5s ease-in-out infinite}
+.vx__layer{position:absolute;inset:0;width:100%;height:100%;overflow:visible;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.vx__spin>.vx__layer:first-child{filter:drop-shadow(0 8px 10px rgba(0,0,0,.28))}
+@keyframes vxFloat{0%,100%{transform:translateY(-5px)}50%{transform:translateY(7px)}}
+
+.vx__copy{position:relative;z-index:1;max-width:660px;display:flex;flex-direction:column;align-items:center}
+.vx__kicker{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.22em;color:var(--gold)}
+.vx__title{margin-top:8px;font-size:clamp(30px,5.2vw,58px);line-height:1.08;letter-spacing:-.01em;color:#fff}
+.vx__rule{display:block;width:72px;height:3px;margin-block:18px;border-radius:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.vx__text{font-size:clamp(15px,1.6vw,19px);line-height:1.75;color:rgba(255,255,255,.92)}
+
+/* ---------- 4. Navigation ---------- */
+.vx__nav{position:absolute;z-index:4;top:50%;display:grid;place-items:center;width:58px;height:58px;margin-top:-29px;border-radius:50%;border:1px solid rgba(255,255,255,.4);background:rgba(0,0,0,.18);color:#fff;cursor:pointer}
+.vx__nav--prev{left:clamp(12px,3vw,44px)}
+.vx__nav--next{right:clamp(12px,3vw,44px)}
+.vx__nav:hover{background:var(--gold);border-color:var(--gold);color:#3a2605}
+.vx__dots{position:absolute;z-index:4;left:0;right:0;bottom:calc(28px + env(safe-area-inset-bottom,0px));display:flex;justify-content:center;gap:10px}
+.vx__dot{width:10px;height:10px;padding:0;border:0;border-radius:99px;background:rgba(255,255,255,.4);cursor:pointer;transition:width .5s var(--ease),background-color .3s ease}
+.vx__dot.is-on{width:46px;background:var(--gold)}
+.vx__dot:not(.is-on):hover{background:rgba(255,255,255,.75)}
+
+/* ---------- 5. Mobile et accessibilité ---------- */
+@media (max-width:767px){
+  .vx__slide{padding-inline:20px;padding-bottom:110px}
+  .vx__stage{width:min(240px,62vw);height:min(240px,30vh)}
+  .vx__nav{top:auto;bottom:calc(14px + env(safe-area-inset-bottom,0px));margin-top:0;width:50px;height:50px}
+  .vx__dots{bottom:calc(31px + env(safe-area-inset-bottom,0px))}
+  .vx__close{width:46px;height:46px}
+}
+@media (max-height:640px) and (orientation:landscape){
+  .vx__slide{flex-direction:row;gap:28px;padding:56px 90px 56px}
+  .vx__stage{width:34vh;height:34vh}
+  .vx__copy{align-items:flex-start;text-align:left}
+}
+@media (prefers-reduced-motion:reduce){
+  .vx__disc,.vx.is-in .vx__disc,.vx.is-closing .vx__disc{transition-duration:.01s;transition-delay:0s}
+  .vx__top,.vx__close,.vx__nav,.vx__dots,.vx__track,.vx.is-in .vx__top,.vx.is-in .vx__close,.vx.is-in .vx__nav,.vx.is-in .vx__dots,.vx.is-in .vx__track{transition-duration:.01s;transition-delay:0s}
+  .vx__slide{transition-duration:.01s}
+  .vx__spin{animation:none}
+}
+
+/* ---------- Fonds animés des sections Awards : poussière d'étoiles (stardust.js) et comètes (comets.js) ---------- */
+.stardust,.comets{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+
+/* ---------- Biographie de la Direction : déploiement fluide ---------- */
+.leader__bio.is-opening p{animation:bioIn .8s var(--ease) both}
+.leader__bio.is-opening p:nth-child(2){animation-delay:.1s}
+.leader__bio.is-opening p:nth-child(3){animation-delay:.2s}
+.leader__bio.is-opening p:nth-child(n+4){animation-delay:.3s}
+.leader__bio.is-closing p{opacity:0;transform:translateY(-8px);transition:opacity .3s ease,transform .4s ease}
+@keyframes bioIn{from{opacity:0;transform:translateY(16px);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+.leader__toggle span{display:inline-block;transition:opacity .25s ease}
+.leader__toggle b{transition:transform .6s var(--ease),background-color .3s ease,color .3s ease}
+.leader__toggle[aria-expanded=true] b{transform:rotate(225deg)}
+@media (prefers-reduced-motion:reduce){.leader__bio.is-opening p{animation:none}}
+
+/* ---------- Mobile : la barre de points ne bloque pas les flèches précédent / suivant ---------- */
+.vx__dots{pointer-events:none}
+.vx__dot{position:relative;pointer-events:auto}
+.vx__dot::before{content:"";position:absolute;inset:-14px -5px}
+@media (max-width:767px){
+  .vx__dots{left:76px;right:76px}
+  .vx__nav{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+}
+
+/* ---------- Flou (verre dépoli) à l'ouverture d'une valeur (Intégrité, Compréhension du monde, Impact durable) ---------- */
+/* le cercle devient translucide et floute les rectangles et la page derrière lui pendant qu'il grandit */
+.vx__disc,.vx.is-in .vx__disc{background:color-mix(in srgb,var(--vc) 74%,transparent);-webkit-backdrop-filter:blur(24px) saturate(1.25);backdrop-filter:blur(24px) saturate(1.25)}
+/* le texte est posé sur un rectangle flou */
+.vx__copy{padding:clamp(22px,3vw,40px) clamp(22px,3.4vw,48px);border-radius:28px;
+  background:linear-gradient(160deg,rgba(255,255,255,.16) 0%,rgba(255,255,255,.07) 100%);
+  -webkit-backdrop-filter:blur(18px) saturate(1.2);backdrop-filter:blur(18px) saturate(1.2);
+  border:1px solid rgba(255,255,255,.28);box-shadow:0 18px 44px rgba(0,0,0,.22)}
+@media (max-width:767px){.vx__copy{padding:20px 18px;border-radius:22px}}
+@media (max-height:640px) and (orientation:landscape){.vx__copy{padding:18px 24px}}

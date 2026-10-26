@@ -1,0 +1,231 @@
+/*
+  ENHANCE.CSS : animations ajoutées par-dessus style.css et style-mobile.css
+  1. Accueil      : texte en dégradé or animé
+  2. À propos     : transitions d'images (volet, iris, diagonale, flou) + reflet doré
+  3. Direction    : animations continues dans les rectangles des leaders
+  4. Galerie      : texture « verre dépoli + grain + reflet » au survol, fond en rideaux de verre (canvas)
+  5. Partenaires  : slider glissable gauche/droite + flèches
+  Tout ce qui bouge est désactivé si l'appareil demande « réduire les animations ».
+  Ce fichier se charge APRÈS les deux autres : il suffit de supprimer son <link> pour revenir en arrière.
+*/
+@property --lg-ang{syntax:'<angle>';inherits:false;initial-value:0deg}
+
+/* =====================================================================
+   1. ACCUEIL : dégradé or animé sur le titre
+   ===================================================================== */
+.hero h1 .w,.hero h1 .hl:not(:has(.w)){
+  background-image:linear-gradient(100deg,#fff 0%,#fff 38%,#ffe6a0 47%,#f5c96f 50%,#ffe6a0 53%,#fff 62%,#fff 100%);
+  background-size:280% 100%;background-position:100% 0;background-repeat:no-repeat;
+  -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+/* marge interne : le dégradé ne doit pas couper les queues des g, p, y */
+.hero h1 .w{padding:.06em .04em .16em;margin:-.06em -.04em -.16em}
+.hero h1 .hl .w,.hero h1 .hl:not(:has(.w)){
+  background-image:linear-gradient(100deg,#9a6a1c 0%,#e9b84e 16%,#fff1b8 30%,#f5c96f 44%,#c8922f 60%,#ffe08a 78%,#9a6a1c 100%);
+  background-size:200% 100%;background-position:0 0;background-repeat:repeat-x}
+@keyframes goldSweep{0%,38%{background-position:100% 0}78%,100%{background-position:0% 0}}
+@keyframes goldFlow{from{background-position:0 0}to{background-position:200% 0}}
+@media (prefers-reduced-motion:no-preference){
+  html[data-motion=minimal] body .hero h1 .w{animation:goldSweep 7.5s ease-in-out infinite;animation-delay:calc(1.2s + var(--i,0) * .16s)}
+  html[data-motion=minimal] body .hero h1 .hl .w,html[data-motion=minimal] body .hero h1 .hl:not(:has(.w)){animation:goldFlow 6s linear infinite;animation-delay:0s}
+  html[data-motion=full] body .hero h1 .w,html[data-motion=medium] body .hero h1 .w{
+    animation:wordIn .95s var(--ease) calc(.15s + var(--i,0) * 75ms) both,goldSweep 7.5s ease-in-out calc(2.6s + var(--i,0) * .16s) infinite}
+  html[data-motion=full] body .hero h1 .hl .w,html[data-motion=medium] body .hero h1 .hl .w{
+    animation:wordIn .95s var(--ease) calc(.15s + var(--i,0) * 75ms) both,glint 2.6s ease-in-out calc(1.6s + (var(--i,0) - var(--hi,0)) * 90ms) 1 none,goldFlow 6s linear infinite}
+  html[data-motion] body .hero h1 .hl:not(:has(.w)){animation:goldFlow 6s linear infinite}
+}
+
+/* =====================================================================
+   2. À PROPOS : transitions d'images
+   ===================================================================== */
+/* Le voile sombre (.about-bg::after) doit rester AU-DESSUS de toutes les images,
+   sinon l'image active passe devant et reste trop claire (textes illisibles). Ordre : images 0-2 < voile 3 < reflet 4. */
+.about-slide{will-change:opacity,transform;z-index:0}
+.about-slide.is-active{z-index:2}
+.about-bg::after{z-index:3}
+.about-sweep{position:absolute;top:-10%;bottom:-10%;left:0;width:30%;z-index:4;pointer-events:none;opacity:0;mix-blend-mode:screen;
+  background:linear-gradient(90deg,transparent,rgba(255,226,140,.22) 35%,rgba(255,255,255,.6) 52%,rgba(245,201,111,.25) 68%,transparent);
+  transform:translateX(-130%) skewX(-14deg)}
+@keyframes abWipe{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes abIris{from{clip-path:circle(0% at 72% 48%)}to{clip-path:circle(150% at 72% 48%)}}
+@keyframes abDiag{from{clip-path:polygon(0 0,0 0,-35% 100%,-35% 100%)}to{clip-path:polygon(0 0,135% 0,100% 100%,-35% 100%)}}
+@keyframes abBlur{from{opacity:0;filter:blur(26px) brightness(1.9)}to{opacity:.55;filter:blur(0) brightness(1)}}
+@keyframes abScale{from{scale:1.2}to{scale:1}}
+@keyframes aboutSweep{0%{opacity:0;transform:translateX(-130%) skewX(-14deg)}15%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translateX(430%) skewX(-14deg)}}
+/* Chaque image garde son mouvement lent en continu, qu'elle soit visible ou non : plus aucune rupture. */
+@keyframes abKen{from{transform:scale(1.05) translate3d(0,0,0)}to{transform:scale(1.14) translate3d(-1.2%,-.8%,0)}}
+@media (prefers-reduced-motion:no-preference){
+  html{--ken:none}
+  html[data-motion=full],html[data-motion=medium]{--ken:abKen 18s ease-in-out infinite alternate}
+  html[data-motion] .about-slide,html[data-motion] .about-slide.is-active{animation:var(--ken)}
+  .about-slide{transition:opacity .7s ease 1.25s}
+  .about-slide.is-active{transition:none}
+  html[data-motion] .about-slide.is-active[data-fx=wipe]{animation:abWipe 1.5s cubic-bezier(.77,0,.18,1) both,abScale 2s var(--ken-ease,cubic-bezier(.22,1,.36,1)) both,var(--ken)}
+  html[data-motion] .about-slide.is-active[data-fx=iris]{animation:abIris 1.6s cubic-bezier(.65,0,.2,1) both,abScale 2s cubic-bezier(.22,1,.36,1) both,var(--ken)}
+  html[data-motion] .about-slide.is-active[data-fx=diag]{animation:abDiag 1.5s cubic-bezier(.77,0,.18,1) both,abScale 2s cubic-bezier(.22,1,.36,1) both,var(--ken)}
+  html[data-motion] .about-slide.is-active[data-fx=blur]{animation:abBlur 1.5s ease-out both,abScale 2.2s cubic-bezier(.22,1,.36,1) both,var(--ken)}
+  .about-sweep.go{animation:aboutSweep 1.5s cubic-bezier(.77,0,.18,1) both}
+}
+
+/* =====================================================================
+   3. DIRECTION : animations continues dans les rectangles
+   ===================================================================== */
+.lfx{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;border-radius:inherit}
+.lfx::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;
+  background:conic-gradient(from var(--lg-ang),transparent 0 68%,rgba(245,201,111,.95) 84%,transparent 100%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.8}
+.lfx-beam{position:absolute;top:-30%;bottom:-30%;left:-40%;width:26%;opacity:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.13) 40%,rgba(245,201,111,.2) 55%,transparent);transform:translateX(0) skewX(-18deg)}
+.lfx-beam--2{width:10%;left:-60%}
+.lfx-orb{position:absolute;display:block;border-radius:50%;filter:blur(30px);opacity:.55;will-change:transform}
+.lfx-orb--1{right:-12%;bottom:-34%;width:48%;aspect-ratio:1;background:radial-gradient(circle,rgba(245,201,111,.6),transparent 68%)}
+.lfx-orb--2{left:14%;top:-42%;width:40%;aspect-ratio:1;background:radial-gradient(circle,rgba(255,255,255,.4),transparent 68%)}
+.lfx-orb--3{left:-10%;bottom:-30%;width:34%;aspect-ratio:1;background:radial-gradient(circle,var(--lp-sub),transparent 68%);opacity:.35}
+.lfx-ring{position:absolute;right:-70px;top:-70px;width:280px;height:280px;color:rgba(255,255,255,.26)}
+.lfx-ring--2{right:auto;top:auto;left:34%;bottom:-100px;width:220px;height:220px;color:rgba(245,201,111,.32)}
+.lfx-spark{position:absolute;bottom:-8px;left:var(--x,50%);width:var(--s,4px);height:var(--s,4px);border-radius:50%;background:var(--lp-accent);box-shadow:0 0 10px var(--lp-accent);opacity:0}
+@keyframes lfxFlow{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes lfxDots{to{background-position:18px 18px}}
+@keyframes lfxAng{to{--lg-ang:360deg}}
+@keyframes lfxBeam{0%,10%{opacity:0;transform:translateX(0) skewX(-18deg)}18%{opacity:1}55%{opacity:1}65%,100%{opacity:0;transform:translateX(720%) skewX(-18deg)}}
+@keyframes lfxDrift1{to{transform:translate3d(-14%,-12%,0) scale(1.15)}}
+@keyframes lfxDrift2{to{transform:translate3d(18%,10%,0) scale(.9)}}
+@keyframes lfxDrift3{to{transform:translate3d(10%,-16%,0) scale(1.2)}}
+@keyframes lfxSpin{to{transform:rotate(360deg)}}
+@keyframes lfxRise{0%{opacity:0;transform:translate3d(0,0,0)}12%{opacity:.95}100%{opacity:0;transform:translate3d(var(--dx,0px),-430px,0)}}
+@keyframes lfxRing{0%,100%{box-shadow:0 0 0 40px rgba(255,255,255,.04),0 0 0 90px rgba(255,255,255,.03)}50%{box-shadow:0 0 0 58px rgba(255,255,255,.075),0 0 0 124px rgba(255,255,255,.05)}}
+@keyframes lfxFloat{0%,100%{translate:0 0}50%{translate:0 -9px}}
+@keyframes lfxFloat2{0%,100%{translate:0 0}50%{translate:0 8px}}
+@keyframes lfxBadge{0%{box-shadow:0 14px 30px rgba(10,30,50,.28),0 0 0 0 rgba(245,201,111,.55)}70%,100%{box-shadow:0 14px 30px rgba(10,30,50,.28),0 0 0 18px rgba(245,201,111,0)}}
+@keyframes lfxShine{from{background-position:0 0}to{background-position:200% 0}}
+@keyframes lfxPill{0%,100%{box-shadow:0 0 0 rgba(255,255,255,0)}50%{box-shadow:0 0 14px rgba(255,255,255,.28)}}
+@media (prefers-reduced-motion:no-preference){
+  .leader__panel{background:linear-gradient(125deg,var(--lp1),var(--lp2) 45%,var(--lp1) 100%);background-size:240% 240%;animation:lfxFlow 16s ease-in-out infinite}
+  .leader__panel::before{animation:lfxDots 20s linear infinite}
+  .leader__panel::after{animation:lfxRing 6s ease-in-out infinite}
+  .lfx::after{animation:lfxAng 7s linear infinite}
+  .lfx-beam{animation:lfxBeam 9s ease-in-out infinite}
+  .lfx-beam--2{animation-delay:4.5s;animation-duration:10s}
+  .lfx-orb--1{animation:lfxDrift1 11s ease-in-out infinite alternate}
+  .lfx-orb--2{animation:lfxDrift2 14s ease-in-out infinite alternate}
+  .lfx-orb--3{animation:lfxDrift3 12s ease-in-out infinite alternate}
+  .lfx-ring{animation:lfxSpin 40s linear infinite}
+  .lfx-ring--2{animation:lfxSpin 56s linear infinite reverse}
+  .lfx-spark{animation:lfxRise var(--t,9s) linear var(--dl,0s) infinite}
+  .leader__photo--main{animation:lfxFloat 7s ease-in-out infinite}
+  .leader__photo--second{animation:lfxFloat2 8s ease-in-out -3s infinite}
+  .leader__logo{animation:lfxBadge 3.2s ease-out infinite}
+  .leader__name{background-image:linear-gradient(90deg,var(--lp-accent) 0%,#fff6d0 50%,var(--lp-accent) 100%);background-size:200% 100%;background-repeat:repeat-x;
+    -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:lfxShine 6s linear infinite}
+  .leader__titles li{animation:lfxPill 4.5s ease-in-out infinite}
+  .leader__titles li:nth-child(2){animation-delay:.6s}.leader__titles li:nth-child(3){animation-delay:1.2s}
+  .leader__titles li:nth-child(4){animation-delay:1.8s}.leader__titles li:nth-child(5){animation-delay:2.4s}
+}
+
+/* =====================================================================
+   4. GALERIE : rideaux de verre (canvas) + texture au survol
+   ===================================================================== */
+.glass-curtains{position:absolute;inset:0;width:100%;height:100%;z-index:-1;display:block;pointer-events:none}
+.gallery-item__tex{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;overflow:hidden;border-radius:inherit;transition:opacity .55s ease;
+  background:linear-gradient(160deg,rgba(245,201,111,.16),rgba(10,50,100,.3))}
+.gallery-item__tex i{position:absolute;inset:0;display:block}
+.gi-grain{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1.1 -.15'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") 0 0/180px 180px;mix-blend-mode:overlay;opacity:.3}
+.gi-lines{background:repeating-linear-gradient(115deg,rgba(255,255,255,.09) 0 1px,transparent 1px 8px);mix-blend-mode:soft-light}
+.gi-sheen{background:linear-gradient(115deg,transparent 28%,rgba(255,255,255,.3) 44%,rgba(245,201,111,.42) 50%,transparent 62%);transform:translateX(-125%)}
+.gi-frost{padding:16px;background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(16,60,110,.22));
+  -webkit-backdrop-filter:blur(8px) saturate(1.4);backdrop-filter:blur(8px) saturate(1.4);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+@keyframes giSheen{0%{transform:translateX(-125%)}55%,100%{transform:translateX(125%)}}
+@keyframes giGrain{to{background-position:90px 60px}}
+@media (hover:hover) and (pointer:fine){
+  .gallery-item:hover .gallery-item__tex,.gallery-item:focus-visible .gallery-item__tex{opacity:1}
+}
+@media (prefers-reduced-motion:no-preference){
+  .gallery-item:hover .gi-sheen,.gallery-item:focus-visible .gi-sheen{animation:giSheen 3.4s ease-in-out infinite}
+  .gallery-item:hover .gi-grain{animation:giGrain .9s steps(5) infinite}
+}
+
+/* =====================================================================
+   5. PARTENAIRES : slider glissable
+   ===================================================================== */
+.logo-slider{position:relative}
+html body .logo-strip.is-slider{overflow:hidden;cursor:grab;touch-action:pan-y;user-select:none;-webkit-user-select:none;-webkit-overflow-scrolling:auto;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 9%,#000 91%,transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 9%,#000 91%,transparent 100%)}
+html body .logo-strip.is-slider.is-dragging{cursor:grabbing}
+html body .logo-strip.is-slider .logo-group{display:flex}
+html body .logo-strip.is-slider .logo-track{animation:none;will-change:transform}
+.logo-strip.is-slider img{-webkit-user-drag:none;pointer-events:none}
+.logo-strip.is-slider:focus-visible{outline:2px solid var(--brand);outline-offset:4px;border-radius:12px}
+.logo-nav{position:absolute;top:50%;z-index:3;display:grid;place-items:center;width:46px;height:46px;margin-top:-23px;padding:0;border:1px solid rgba(245,201,111,.65);border-radius:50%;
+  background:rgba(255,255,255,.85);color:#5a3a0a;cursor:pointer;box-shadow:0 10px 24px rgba(16,42,70,.2);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:background-color .3s ease,color .3s ease,transform .35s var(--ease),box-shadow .3s ease}
+.logo-nav svg{width:20px;height:20px}
+.logo-nav--prev{left:6px}.logo-nav--next{right:6px}
+.logo-nav:hover{background:var(--gold);color:#3a2207;box-shadow:0 14px 28px rgba(117,64,19,.3)}
+.logo-nav--prev:hover{transform:translateX(-3px)}.logo-nav--next:hover{transform:translateX(3px)}
+.logo-nav:active{transform:scale(.92)}
+.logo-nav:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+@media (max-width:540px){.logo-nav{width:38px;height:38px;margin-top:-19px}.logo-nav svg{width:16px;height:16px}.logo-nav--prev{left:2px}.logo-nav--next{right:2px}}
+
+/* =====================================================================
+   6. ACCUEIL : icône 3D collée au bloc de texte (01 / 03 ...), le tout un peu plus à droite
+   --h3d-txt-h est mesuré par hero3d.js à chaque étape (hauteur réelle du bloc de texte)
+   ===================================================================== */
+@media (min-width:901px){
+  .h3d:not(.h3d--flat){--h3d-right:calc(var(--gutter) + clamp(60px,9vw,180px));--h3d-txt-b:clamp(150px,24vh,230px)}
+  .h3d:not(.h3d--flat) .h3d__txt{right:var(--h3d-right);bottom:var(--h3d-txt-b)}
+  .h3d:not(.h3d--flat) .h3d__fig{right:var(--h3d-right);top:auto;bottom:calc(var(--h3d-txt-b) + var(--h3d-txt-h,140px) + 14px)}
+}
+
+/* =====================================================================
+   7. AWARDS : plus de textures ; fond en dégradé flou dynamique aux couleurs de la charte
+   (bleu #1767a5 / marine #0f2f52, or #f5c96f, marron #754013, vert #3a8a1d, ciel #7bc8f8)
+   ===================================================================== */
+.awards-fx__tex,.awards-fx__rosette,.awards-fx__beam,.awards-fx .aw-spark{display:none!important}
+.awards-section{background:linear-gradient(165deg,#07182d 0%,#0d2848 55%,#10203c 100%)}
+.aw-blob{position:absolute;display:block;width:var(--sz,40vmax);aspect-ratio:1;border-radius:50%;left:var(--x);top:var(--y);
+  background:radial-gradient(circle,rgba(var(--rgb),var(--a,.5)) 0%,rgba(var(--rgb),0) 68%);filter:blur(70px);will-change:transform;
+  -webkit-backface-visibility:hidden;backface-visibility:hidden}
+.aw-blob--1{--rgb:23,103,165;--a:.75;--sz:58vmax;--x:-14%;--y:-30%}
+.aw-blob--2{--rgb:245,201,111;--a:.5;--sz:36vmax;--x:62%;--y:-24%}
+.aw-blob--3{--rgb:117,64,19;--a:.7;--sz:44vmax;--x:48%;--y:42%}
+.aw-blob--4{--rgb:58,138,29;--a:.45;--sz:34vmax;--x:6%;--y:52%}
+.aw-blob--5{--rgb:123,200,248;--a:.3;--sz:30vmax;--x:34%;--y:6%}
+#awards .aw-blob--1{--x:50%;--y:-34%}#awards .aw-blob--2{--x:-10%;--y:10%}#awards .aw-blob--3{--x:6%;--y:56%}#awards .aw-blob--4{--x:62%;--y:48%}#awards .aw-blob--5{--x:30%;--y:30%}
+@keyframes awbA{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(14%,10%,0) scale(1.18)}100%{transform:translate3d(-8%,16%,0) scale(.94)}}
+@keyframes awbB{0%{transform:translate3d(0,0,0) scale(1.1)}50%{transform:translate3d(-16%,12%,0) scale(.92)}100%{transform:translate3d(10%,-10%,0) scale(1.2)}}
+@keyframes awbC{0%{transform:translate3d(0,0,0) scale(.95)}50%{transform:translate3d(12%,-14%,0) scale(1.15)}100%{transform:translate3d(-14%,-6%,0) scale(1.02)}}
+@media (prefers-reduced-motion:no-preference){
+  .aw-blob--1{animation:awbA 24s ease-in-out infinite alternate}
+  .aw-blob--2{animation:awbB 19s ease-in-out infinite alternate}
+  .aw-blob--3{animation:awbC 27s ease-in-out infinite alternate}
+  .aw-blob--4{animation:awbB 22s ease-in-out -8s infinite alternate}
+  .aw-blob--5{animation:awbA 17s ease-in-out -5s infinite alternate}
+  .awards-fx.is-away .aw-blob{animation-play-state:paused}
+}
+html[data-motion=minimal] .aw-blob{filter:blur(46px)}
+
+/* ---------- Galerie : photos collées en un seul bloc, séparées par une ligne blanche ---------- */
+.gallery-grid{gap:0!important;border-radius:22px;overflow:hidden;box-shadow:0 22px 54px rgba(0,20,48,.4)}
+.gallery-grid .gallery-item,.gallery-grid .gallery-item:hover{border-radius:0;box-shadow:none;outline:1px solid #fff;outline-offset:-1px}
+.gallery-grid .gallery-item:hover{z-index:2}
+@media (max-width:767px){.gallery-grid{border-radius:16px}}
+
+/* ---------- Galerie : lueur bleu ciel (au lieu de l'or) ---------- */
+.gallery-section::after{background:radial-gradient(circle,rgba(123,200,248,.42),transparent 68%)}
+
+/* ---------- Galerie sur smartphone / tablette : même animation que le survol (classe .is-hot, posée par enhance.js) ---------- */
+@media (hover:none),(pointer:coarse){
+  html:not([data-motion=minimal]) .gallery-item.is-hot img{transform:scale(1.14);filter:saturate(1.15) contrast(1.05);transition:transform 1s var(--ease),filter .6s ease}
+  .gallery-item.is-hot::before{opacity:1}
+  .gallery-item.is-hot::after{opacity:1;transform:none}
+  .gallery-item.is-hot .gallery-item__tex{opacity:1}
+  .gallery-item.is-hot .go-ring{stroke-dashoffset:0}
+  html:not([data-motion=minimal]) .gallery-item.is-hot .go-arrows{animation:goPulse 1.6s ease-in-out .8s infinite}
+  .gallery-item.is-hot .gallery-item__bar{transform:none}
+  .gallery-item.is-hot .gallery-item__copy{transform:translateY(-7px)}
+  .gallery-item.is-hot .gallery-item__copy small{background:var(--gold);color:#3a2207;letter-spacing:.2em}
+}
+@media (hover:none) and (prefers-reduced-motion:no-preference),(pointer:coarse) and (prefers-reduced-motion:no-preference){
+  .gallery-item.is-hot .gi-sheen{animation:giSheen 3.4s ease-in-out infinite}
+  .gallery-item.is-hot .gi-grain{animation:giGrain .9s steps(5) infinite}
+}

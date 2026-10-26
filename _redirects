@@ -1,0 +1,7 @@
+# Netlify / Cloudflare Pages : anciennes adresses -> nouvelles pages
+/?lang=fr  /fr.html  301!
+/privacy?lang=fr  /privacy-fr.html  301!
+/terms?lang=fr  /terms-fr.html  301!
+/privacy  /privacy.html  301
+/terms  /terms.html  301
+/fr  /fr.html  301
